@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file linkding-compose.yaml convert
+    kompose.version: 1.37.0 (HEAD)
+    traefik.enable: "true"
+    traefik.http.routers.linkding.entrypoints: websecure
+    traefik.http.routers.linkding.rule: Host(`linkding.achance.se`)
+    traefik.http.routers.linkding.tls.certresolver: le
+  labels:
+    io.kompose.service: linkding
+  name: linkding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: linkding
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file linkding-compose.yaml convert
+        kompose.version: 1.37.0 (HEAD)
+        traefik.enable: "true"
+        traefik.http.routers.linkding.entrypoints: websecure
+        traefik.http.routers.linkding.rule: Host(`linkding.achance.se`)
+        traefik.http.routers.linkding.tls.certresolver: le
+      labels:
+        io.kompose.service: linkding
+    spec:
+      containers:
+        - image: sissbruecker/linkding:1.44.1
+          name: linkding
+          volumeMounts:
+            - mountPath: /etc/linkding/data
+              name: linkding-claim0
+      restartPolicy: Always
+      volumes:
+        - name: linkding-claim0
+          persistentVolumeClaim:
+            claimName: linkding-claim0
