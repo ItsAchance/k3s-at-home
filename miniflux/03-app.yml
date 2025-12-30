@@ -1,0 +1,123 @@
+---
+# Miniflux Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miniflux
+  namespace: miniflux
+  labels:
+    app: miniflux
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: miniflux
+  template:
+    metadata:
+      labels:
+        app: miniflux
+    spec:
+      initContainers:
+      - name: wait-for-db
+        image: postgres:17-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h miniflux-db -U miniflux; do
+            echo "Waiting for database..."
+            sleep 2
+          done
+        env:
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: miniflux-secrets
+              key: db-password
+      containers:
+      - name: miniflux
+        image: miniflux/miniflux:2.2.15
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: miniflux-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: miniflux-secrets
+              key: db-password
+        - name: DATABASE_URL
+          value: "postgres://$(DB_USER):$(DB_PASSWORD)@miniflux-db/miniflux?sslmode=disable"
+        - name: RUN_MIGRATIONS
+          value: "1"
+        - name: CREATE_ADMIN
+          value: "1"
+        - name: ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: miniflux-secrets
+              key: admin-username
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: miniflux-secrets
+              key: admin-password
+        - name: POLLING_FREQUENCY
+          value: "20"
+        - name: FETCH_YOUTUBE_WATCH_TIME
+          value: "1"
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: miniflux
+              topologyKey: kubernetes.io/hostname
+
+---
+# Miniflux Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: miniflux
+  namespace: miniflux
+  labels:
+    app: miniflux
+spec:
+  selector:
+    app: miniflux
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: http
+  type: ClusterIP
