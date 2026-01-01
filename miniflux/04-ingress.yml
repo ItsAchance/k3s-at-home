@@ -12,9 +12,10 @@ metadata:
     # Optional: Force HTTPS redirect
     traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   rules:
-  - host: rss.achance.se
+  - host: rss.bytechance.dev
     http:
       paths:
       - path: /
@@ -26,5 +27,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - rss.achance.se
+    - rss.bytechance.dev
     secretName: miniflux-tls
