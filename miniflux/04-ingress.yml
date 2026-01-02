@@ -7,7 +7,7 @@ metadata:
     app: miniflux
   annotations:
     # Traefik configuration
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     # Optional: Force HTTPS redirect
     traefik.ingress.kubernetes.io/redirect-entry-point: https
