@@ -17,7 +17,7 @@ spec:
         - /home/achance/.ssh/flux-key
         volumeMounts:
         - name: ssh-dir
-          mountPath: /home/achance/.ssh
+          mountPath: /home/achance/.ssh/flux-key
           readOnly: true
       volumes:
       - name: ssh-dir
