@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: extract-flux-ssh-key
+  namespace: flux-system
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: k3smaster01
+      restartPolicy: Never
+      containers:
+      - name: extract-key
+        image: alpine:latest
+        command:
+        - cat
+        - /home/achance/.ssh/flux-key
+        volumeMounts:
+        - name: ssh-dir
+          mountPath: /home/achance/.ssh
+          readOnly: true
+      volumes:
+      - name: ssh-dir
+        hostPath:
+          path: /home/achance/.ssh
+          type: Directory
+      terminationGracePeriodSeconds: 30
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 300
