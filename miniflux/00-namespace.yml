@@ -1,5 +1,4 @@
 apiVersion: v1
-# This is a comment
 kind: Namespace
 metadata:
   name: miniflux
