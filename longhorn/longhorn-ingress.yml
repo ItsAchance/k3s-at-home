@@ -10,6 +10,10 @@ metadata:
     traefik.ingress.kubernetes.io/router.tls: "true"
     # Optional: Add basic auth to protect the dashboard
     # traefik.ingress.kubernetes.io/router.middlewares: longhorn-system-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
 spec:
   rules:
   - host: longhorn.bytechance.dev
