@@ -71,6 +71,8 @@ spec:
           value: "20"
         - name: FETCH_YOUTUBE_WATCH_TIME
           value: "1"
+        - name: DISABLE_HTTP2
+          value: "1"
         livenessProbe:
           httpGet:
             path: /healthcheck
