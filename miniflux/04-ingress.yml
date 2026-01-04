@@ -12,6 +12,7 @@ metadata:
     # Optional: Force HTTPS redirect
     traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    traefik.ingress.kubernetes.io/service.serversscheme: http
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
